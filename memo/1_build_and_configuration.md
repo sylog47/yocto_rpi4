@@ -51,4 +51,12 @@ setup_layers build_raspi4
 ## configurations
  - parallel build
  - save disk space
+    - DL_DIR: save packages to share with other build direcotries.
+    - rm_work: save disk by removing work dir
  - sstate
+
+
+## firmware flash
+TODO:
+
+
