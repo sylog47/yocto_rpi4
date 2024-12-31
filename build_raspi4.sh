@@ -20,7 +20,7 @@ function setup_layers()
     echo "init workspace..."
     BUILD_DIR=$1
     echo "BUILD_DIR: ${BUILD_DIR}"
-    source poky/oe-init-build-env build_raspi4
+    source poky/oe-init-build-env  ${BUILD_DIR}
 
 
     bitbake-layers show-layers
@@ -85,7 +85,7 @@ function configure_build()
     #    This directory may be relocated with the SSTATE_DIR variable in your local.conf.
     #----------------------------------------------------------------------------------------
     if grep -q "#DL_DIR ?= " "${LOCAL_CONF_PATH}"; then
-        sed -i "s/#DL_DIR ?=/DL_DIR ?=/g" ${LOCAL_CONF_PATH}
+        sed -i "s/#DL_DIR ?=/DL_DIR ?=/g"  ${LOCAL_CONF_PATH}
         #echo 'DL_DIR ?= "${TOPDIR}/downloads"' >> ${LOCAL_CONF_PATH}
     fi
 
@@ -95,10 +95,13 @@ function configure_build()
         echo 'SSTATE_DIR ?= "${TOPDIR}/sstate-cache"' >> ${LOCAL_CONF_PATH}
     fi
 
-    #if grep -q "MACHINE := \"$MY_MACHINE\""  "${LOCAL_CONF_PATH}"; then
-    if ! grep -q "MACHINE := \"$MY_MACHINE\""  "${LOCAL_CONF_PATH}"; then
+    # Disable default MACHINE declaration
+    sed -i "s/MACHINE ??= /#MACHINE ??= /g"  ${LOCAL_CONF_PATH}
+
+#    if grep -q "MACHINE := \"$MY_MACHINE\""  "${LOCAL_CONF_PATH}"; then
 #        echo "MACHINE is already configured!"
 #    else
+    if ! grep -q "MACHINE := \"$MY_MACHINE\""  "${LOCAL_CONF_PATH}"; then
         echo "MACHINE := \"$MY_MACHINE\"" >> ${LOCAL_CONF_PATH}
     fi
 }
@@ -106,7 +109,7 @@ function configure_build()
 function build_image()
 {
     echo "--- $FUNCNAME ---"
-    echo "Build core-image-base..."
+    echo "Build core-image-minimal..."
     #bitbake core-image-base
     bitbake core-image-minimal
 }
