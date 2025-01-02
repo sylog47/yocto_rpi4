@@ -104,6 +104,10 @@ function configure_build()
     if ! grep -q "MACHINE := \"$MY_MACHINE\""  "${LOCAL_CONF_PATH}"; then
         echo "MACHINE := \"$MY_MACHINE\"" >> ${LOCAL_CONF_PATH}
     fi
+
+    if ! grep -q "IMAGE_FSTYPES += \"wic wic.bmap\""  ${LOCAL_CONF_PATH}; then
+        echo "IMAGE_FSTYPES += \"wic wic.bmap\"" >> ${LOCAL_CONF_PATH}
+    fi
 }
 
 function build_image()
