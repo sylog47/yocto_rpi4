@@ -1,8 +1,8 @@
 # Custom Layers and Images
 
 In meta-raspberrypi layer, there are a lot of recipes.
-These recipes declare images and package groups to use packages.
-And Application recipes could be defined in layer.
+These recipes define images and package groups to use packages.
+Also application recipes could be defined in layer.
 
 I don't want to change meta-raspberrypi layer.
 I'll just change a part of the layer that I will use.
