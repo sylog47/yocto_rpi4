@@ -36,7 +36,8 @@ function configure_build()
 {
     echo "--- $FUNCNAME ---"
     LOCAL_CONF_PATH=$1
-    MY_MACHINE=raspberrypi4
+    # MY_MACHINE=raspberrypi4
+    MY_MACHINE=$2
 
     echo "LOCAL_CONF_PATH: ${LOCAL_CONF_PATH}"
 
@@ -105,8 +106,10 @@ function configure_build()
         echo "MACHINE := \"$MY_MACHINE\"" >> ${LOCAL_CONF_PATH}
     fi
 
-    if ! grep -q "IMAGE_FSTYPES += \"wic wic.bmap\""  ${LOCAL_CONF_PATH}; then
-        echo "IMAGE_FSTYPES += \"wic wic.bmap\"" >> ${LOCAL_CONF_PATH}
+    if [[${MY_MACHINE} == "raspberrypi4"]]; then
+        if ! grep -q "IMAGE_FSTYPES += \"wic wic.bmap\""  ${LOCAL_CONF_PATH}; then
+            echo "IMAGE_FSTYPES += \"wic wic.bmap\"" >> ${LOCAL_CONF_PATH}
+        fi
     fi
 }
 
@@ -118,12 +121,57 @@ function build_image()
     bitbake core-image-minimal
 }
 
+usage()
+{
+    echo "${FUNCNAME}"
+    echo "======================================"
+    echo "Select MACHINE: "
+    echo "rpi4     : raspberrypi4"
+    echo "qemu     : qemu"
+}
+
 export TOP_DIR=`pwd`
-BUILD_DIR_NAME=build_raspi4
-LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
 
+build_machine()
+{
 
-get_layers
-setup_layers $TOP_DIR/${BUILD_DIR_NAME}
-configure_build ${LOCAL_CONF_PATH}
-build_image
+    BUILD_DIR_NAME=build_raspi4
+    LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+    MACHINE_NAME=raspberrypi4
+
+    case $1 in
+        "rpi4")
+        BUILD_DIR_NAME=build_raspi4
+        LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+        MACHINE_NAME="raspberrypi4"
+        ;;
+        "qemu")
+        BUILD_DIR_NAME=build_qemuarm
+        LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+        MACHINE_NAME="qemuarm64"
+        ;;
+        *)
+        echo "invalid machine option"
+        ;;
+    esac
+    
+    echo "---- CHECK ----"
+    echo "BUILD_DIR_NAME : ${BUILD_DIR_NAME}"
+    echo "LOCAL_CONF_PATH: ${LOCAL_CONF_PATH}"
+    echo "MACHINE_NAME   : ${MACHINE_NAME}"
+    echo "-----------------"
+
+    get_layers
+    setup_layers $TOP_DIR/${BUILD_DIR_NAME}
+    configure_build ${LOCAL_CONF_PATH} ${MACHINE_NAME}
+    build_image
+
+}
+
+if [ $# -gt 0 ]; then
+    build_machine $@
+else
+    echo "Please type options."
+    usage
+fi
+
