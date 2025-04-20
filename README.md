@@ -10,7 +10,8 @@
 
 ### qemu run
 ~~~bash
-runqemu qemuarmx64 nographic
+$ source poky/oe-init-build-env build_qemuarm/
+$ runqemu qemuarm64 nographic
 ~~~
 
 root로 로그인  
