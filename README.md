@@ -46,7 +46,7 @@ sdcard image (.wic) 파일을 확인, 빌드 서버에서 가져온다.
  - raspberrypi4
 ~~~bash
 $ ll build_raspi4/tmp/deploy/images/raspberrypi4/core-image-minimal*.wic
-$ realpath build_raspi4/tmp/deploy/images/raspberrypi0-2w-64/core-image-minimal*.wic
+$ realpath build_raspi4/tmp/deploy/images/raspberrypi4/core-image-minimal*.wic
 $ scp <ssh address>:<img path> ./
 ~~~
 
