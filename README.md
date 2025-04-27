@@ -3,7 +3,7 @@
 [docker install & run](./docker/README.md)
 
 ## build qemu and run
-### MACHIN설정
+### MACHINE 설정
 아래 machine.conf파일들의 이름들이 Layer내에서 지원되는 머신들이다.  
 raspberrypi4 는 raspberrypi4-64 또는 raspberrypi4로 설정하면 된다.  
 raspberrypi0 2W는 raspberrypi0-2w 또는 raspberrypi0으로 설정하면 된다.  
