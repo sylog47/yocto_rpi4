@@ -106,10 +106,15 @@ function configure_build()
         echo "MACHINE := \"$MY_MACHINE\"" >> ${LOCAL_CONF_PATH}
     fi
 
-    if [[${MY_MACHINE} == "raspberrypi4"]]; then
+    if [[ "${MY_MACHINE}" == "raspberrypi4" || "${MY_MACHINE}" == "raspberrypi0-2w-64" ]]; then
+        echo "MY_MACHINE: ${MY_MACHINE}"
         if ! grep -q "IMAGE_FSTYPES += \"wic wic.bmap\""  ${LOCAL_CONF_PATH}; then
             echo "IMAGE_FSTYPES += \"wic wic.bmap\"" >> ${LOCAL_CONF_PATH}
         fi
+    fi
+
+    if ! grep -q "ENABLE_UART = \"1\""  ${LOCAL_CONF_PATH}; then
+        echo "ENABLE_UART = \"1\"" >> ${LOCAL_CONF_PATH}
     fi
 }
 
@@ -127,6 +132,7 @@ usage()
     echo "======================================"
     echo "Select MACHINE: "
     echo "rpi4     : raspberrypi4"
+    echo "rpi0-2w  : raspberrypi0 2w"
     echo "qemu     : qemu"
 }
 
@@ -144,6 +150,11 @@ build_machine()
         BUILD_DIR_NAME=build_raspi4
         LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
         MACHINE_NAME="raspberrypi4"
+        ;;
+        "rpi0-2w")
+        BUILD_DIR_NAME=build_raspi0_2w
+        LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+        MACHINE_NAME="raspberrypi0-2w-64"
         ;;
         "qemu")
         BUILD_DIR_NAME=build_qemuarm
