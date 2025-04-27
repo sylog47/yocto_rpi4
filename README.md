@@ -34,10 +34,14 @@ root로 로그인
 종료할 때는 Ctrl+A+X  
 [arm qemu build document](https://learn.arm.com/learning-paths/embedded-and-microcontrollers/yocto_qemu/yocto_build/)
 
-## build rpi4 and run
+## build rpi4, rpi0 2w and run
 ### build
 ~~~bash
 ./build.sh rpi4
+~~~
+or
+~~~bash
+./build.sh rpi0-2w
 ~~~
 
 ### run
@@ -53,13 +57,16 @@ $ scp <ssh address>:<img path> ./
  - raspberrypi0 2w
 ~~~bash
 $ ll build_raspi0_2w/tmp/deploy/images/raspberrypi0-2w-64/core-image-minimal*.wic
-$ realpath build_raspi0_2w/tmp/deploy/images/raspberrypi0-2w-64/core-image-minimal*.wic
+$ realpath build_raspi0_2w/tmp/deploy/images/raspberrypi0-2w-64/core-image-minimal-raspberrypi0-2w-64.rootfs.wic
 $ scp <ssh address>:<img path> ./
 ~~~
 
 balena etcher를 다운받아서 굽는다.  
 또는 dd명령어로 구울 수 있다.  
 ~~~bash
-dd if=core-image-minimal.wic of=/dev/sdb bs=4096 && sync
+# Check your sdcard
+lsblk
+# dd
+dd if=core-image-minimal.wic of=/dev/sd<X> bs=4096 && sync
 ~~~
 sdcard를 라즈베리파이에 꽂고 전원을 키면 부팅로그가 나온다.    
