@@ -58,4 +58,8 @@ $ scp <ssh address>:<img path> ./
 ~~~
 
 balena etcher를 다운받아서 굽는다.  
-sdcard를 라즈베리파이에 꽂고 전원을 키면 부팅로그가 나온다.  
+또는 dd명령어로 구울 수 있다.  
+~~~bash
+dd if=core-image-minimal.wic of=/dev/sdb bs=4096 && sync
+~~~
+sdcard를 라즈베리파이에 꽂고 전원을 키면 부팅로그가 나온다.    
