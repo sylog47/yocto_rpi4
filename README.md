@@ -9,27 +9,7 @@ raspberrypi4 는 raspberrypi4-64 또는 raspberrypi4로 설정하면 된다.
 raspberrypi0 2W는 raspberrypi0-2w 또는 raspberrypi0으로 설정하면 된다.  
 MACHINE변수를 설정하는 부분은 build.sh를 참고.  
 ~~~bash
-sooley@sooley-LEGION:~/Work/yocto_rpi4$ ls -al meta-raspberrypi/conf/machine
-total 72
-drwxr-xr-x 3 sooley sooley 4096  1월 11 14:01 .
-drwxr-xr-x 3 sooley sooley 4096  1월 11 14:01 ..
-drwxr-xr-x 2 sooley sooley 4096  1월 11 14:01 include
--rw-r--r-- 1 sooley sooley  461  1월 11 14:01 raspberrypi0-2w-64.conf
--rw-r--r-- 1 sooley sooley  382  1월 11 14:01 raspberrypi0-2w.conf
--rw-r--r-- 1 sooley sooley  291  1월 11 14:01 raspberrypi0.conf
--rw-r--r-- 1 sooley sooley  585  1월 11 14:01 raspberrypi0-wifi.conf
--rw-r--r-- 1 sooley sooley  387  1월 11 14:01 raspberrypi2.conf
--rw-r--r-- 1 sooley sooley 1096  1월 11 14:01 raspberrypi3-64.conf
--rw-r--r-- 1 sooley sooley  644  1월 11 14:01 raspberrypi3.conf
--rw-r--r-- 1 sooley sooley 1127  1월 11 14:01 raspberrypi4-64.conf
--rw-r--r-- 1 sooley sooley  690  1월 11 14:01 raspberrypi4.conf
--rw-r--r-- 1 sooley sooley  962  1월 11 14:01 raspberrypi5.conf
--rw-r--r-- 1 sooley sooley 1417  1월 11 14:01 raspberrypi-armv7.conf
--rw-r--r-- 1 sooley sooley 1408  1월 11 14:01 raspberrypi-armv8.conf
--rw-r--r-- 1 sooley sooley  413  1월 11 14:01 raspberrypi-cm3.conf
--rw-r--r-- 1 sooley sooley  235  1월 11 14:01 raspberrypi-cm.conf
--rw-r--r-- 1 sooley sooley  398  1월 11 14:01 raspberrypi.conf
-sooley@sooley-LEGION:~/Work/yocto_rpi4$ 
+$ ls -al meta-raspberrypi/conf/machine
 ~~~
 
 #### build.sh 중 local.conf설정 관련 내용
