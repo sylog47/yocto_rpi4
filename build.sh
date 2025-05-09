@@ -19,17 +19,59 @@ function setup_layers()
     echo "--- $FUNCNAME ---"
     echo "init workspace..."
     BUILD_DIR=$1
+    LKP_LAYER=$2
+    CUR_DIR=`pwd`
+
     echo "BUILD_DIR: ${BUILD_DIR}"
+    echo "LKP_LAYER: ${LKP_LAYER}"
+
     source poky/oe-init-build-env  ${BUILD_DIR}
 
 
     bitbake-layers show-layers
 
-    echo "Add meta-raspberrypi layer..."
+    echo "---- Add meta-raspberrypi layer..."
     bitbake-layers add-layer ../meta-raspberrypi
+
+    if [[ "${LKP_LAYER}" == "qemu-lkp" ]]; then
+        echo "Setup additional ${LKP_LAYER}"
+        if [ ! -d ../meta-lkp ]; then
+            echo "Create new layer(meta-lkp)"
+            bitbake-layers create-layer ../meta-lkp
+        else
+            echo "qemu-lkp layer is already exist!"
+        fi
+
+        bitbake-layers add-layer ../meta-lkp
+
+        CUR_DIR=`pwd`
+        cd ../meta-lkp
+        if [ ! -d recipes-core/images ]; then
+            echo "Create new images in meta-lkp layer"
+            mkdir -p recipes-core/images
+            cp -vrf ../poky/meta/recipes-core/images/* recipes-core/images/
+            tree .
+        fi
+
+        if [ ! -f recipes-core/images/lkp-image.bb ]; then
+            echo "Create new lkp-image recipe"
+            cp -v recipes-core/images/core-image-minimal.bb recipes-core/images/lkp-image.bb
+        fi
+        cd $CUR_DIR
+
+
+    elif [[ "${LKP_LAYER}" == "rpi4-lkp" ]]; then
+        echo "Setup additional rpi4 lkp layer"
+    elif [[ "${LKP_LAYER}" == "rpi0-2w-lkp" ]]; then
+        echo "Setup additional rpi0-2w lkp layer"
+    else
+        echo "Invalid layer"
+    fi
 
     echo "Current Layers:"
     bitbake-layers show-layers
+
+    echo "--------------------"
 }
 
 function configure_build()
@@ -131,9 +173,12 @@ usage()
     echo "${FUNCNAME}"
     echo "======================================"
     echo "Select MACHINE: "
-    echo "rpi4     : raspberrypi4"
-    echo "rpi0-2w  : raspberrypi0 2w"
-    echo "qemu     : qemu"
+    echo "rpi4          : raspberrypi4"
+    echo "rpi4-lkp      : raspberrypi4 lkp"
+    echo "rpi0-2w       : raspberrypi0 2w"
+    echo "rpi0-2w-lkp   : raspberrypi0 2w lkp"
+    echo "qemu          : qemu"
+    echo "qemu-lkp      : qemu lkp"
 }
 
 export TOP_DIR=`pwd`
@@ -144,6 +189,7 @@ build_machine()
     BUILD_DIR_NAME=build_raspi4
     LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
     MACHINE_NAME=raspberrypi4
+    LKP_LAYER=0
 
     case $1 in
         "rpi4")
@@ -151,15 +197,33 @@ build_machine()
         LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
         MACHINE_NAME="raspberrypi4"
         ;;
+        "rpi4-lkp")
+        BUILD_DIR_NAME=build_raspi4
+        LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+        MACHINE_NAME="raspberrypi4"
+        LKP_LAYER=rpi4-lkp
+        ;;
         "rpi0-2w")
         BUILD_DIR_NAME=build_raspi0_2w
         LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
         MACHINE_NAME="raspberrypi0-2w-64"
         ;;
+        "rpi0-2w-lkp")
+        BUILD_DIR_NAME=build_raspi0_2w
+        LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+        MACHINE_NAME="raspberrypi0-2w-64"
+        LKP_LAYER=rpi0-2w-lkp
+        ;;
         "qemu")
         BUILD_DIR_NAME=build_qemuarm
         LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
         MACHINE_NAME="qemuarm64"
+        ;;
+        "qemu-lkp")
+        BUILD_DIR_NAME=build_qemuarm
+        LOCAL_CONF_PATH=${TOP_DIR}/${BUILD_DIR_NAME}/conf/local.conf
+        MACHINE_NAME="qemuarm64"
+        LKP_LAYER=qemu-lkp
         ;;
         *)
         echo "invalid machine option"
@@ -173,7 +237,7 @@ build_machine()
     echo "-----------------"
 
     get_layers
-    setup_layers $TOP_DIR/${BUILD_DIR_NAME}
+    setup_layers $TOP_DIR/${BUILD_DIR_NAME} ${LKP_LAYER}
     configure_build ${LOCAL_CONF_PATH} ${MACHINE_NAME}
     build_image
 
