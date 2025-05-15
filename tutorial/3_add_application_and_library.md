@@ -209,6 +209,8 @@ recipe를 보자.
  - do_install(): 빌드된 실행파일(바이너리)을 rootfs에 설치한다.
  - D: destination directory
  - bindir: bin directory, /usr/local/bin 경로를 의미한다.
+ - PN: Package Name을 의미한다. 보통 *.bb파일 명을 의미한다.  
+ - FILE:\$\{PN\}: rootfs에 추가할 파일을 추가한다. ${PN}은 Package Name 변수의 값을 의미한다. 즉, package에서 사용하는 파일들을 정의하는 것이다. 이 선언문이 없으면 에러가 발생한다. install태스크에서 설치했는데, 이 선언문이 없으면 에러가 발생한다. 이 변수가 필요 없을 것 같을 수 있다.(install태스크에서 설치하는데 왜?) 하지만 뒤에서 볼 debug패키지를 보면, 이 FILE이라는 것을 사용하면 디버그, 릴리즈용 파일을 분리할 수 있다는 점에서 편리함이 있다.  
 
 ~~~bash
 DESCRIPTION = "Simple helloworld application"
