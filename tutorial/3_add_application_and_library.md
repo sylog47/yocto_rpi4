@@ -144,3 +144,117 @@ FILE:${PN} += " ${includedir}/my_static_lib.h"
 PROVIDES:${PN} += "sample-static-lib"
 RPROVIDES:${PN} += "sample-static-lib"
 ~~~
+
+## Sample Application
+Library를 이용하는 Application을 만들어보자.  
+~~~bash
+yocto_rpi@sy-desktop:~/kernel$ tree meta-lkp/recipes-app/helloworld/
+meta-lkp/recipes-app/helloworld/
+├── files
+│   ├── include
+│   │   └── greet.h
+│   ├── Makefile
+│   └── src
+│       ├── greet.c
+│       └── main.c
+└── lkp-helloworld_0.1.bb
+
+3 directories, 5 files
+yocto_rpi@sy-desktop:~/kernel$ 
+~~~
+
+코드는 간단한 인삿말을 출력하는 함수들(greet.c)과 라이브러리 함수를 사용하는 부분인 main.c로 구성되어 있다.  
+Makefile을 보자.  
+ - TARGET: LKP_HELLOWORLD_TARGET변수를 읽어서 설정하고 있다. 
+ 이 변수는 lkp-helloworld.bb에서 전달인자로 넘기고 있다. 이어서 나오는 레시피 부분에서 다시 보자.  
+ - LKP_HELLOWORLD_INCLUDE_DIR: 이 변수 역시 lkp-helloworld.bb에서 전달인자로 넘기고 있다. 이어서 나오는 레시피 부분에서 다시 보자.  
+ - -lmystatic: linking할 라이브러리 명이다.
+ - LDFLAGS: yocto 빌드 중에 설정된 기본 LDFLAGS 값이 있다. 여기서 라이브러리 경로(-L/usr/libs)가 설정되기 때문에 여기서는 따로 -L플래그를 설정해주지 않아도 된다.  
+
+~~~bash
+TARGET = ${LKP_HELLOWORLD_TARGET}
+INCLUDE_DIR = ./include
+SRC_DIR = ./src
+
+OBJS = ${SRC_DIR}/main.o \
+		${SRC_DIR}/greet.o
+
+CFLAGS = -I${INCLUDE_DIR}
+CFLAGS += -I${LKP_HELLOWORLD_INCLUDE_PATH}
+CFLAGS += -Wno-pointer-to-int-cast
+CFLAGS += -Wno-int-conversion
+CSTDFLAG = -std=c99
+
+all: ${TARGET}
+
+#$@ is the name of the target being generated, and $< the first prerequisite (usually a source file).
+$(TARGET):$(OBJS)
+	@echo "TARGET: ${TARGET}"
+	$(CC) ${LDFLAGS} $(CFLAGS) $(CSTDFLAG) -o $@ $^ -lm -lmystatic
+
+$(OBJDIR)/%.o:%.c
+	$(CC) ${LDFLAGS} $(CSTDFLAG) $(CFLAGS) $(IFLAGS) -o $@ -c $<
+
+
+clean:
+	-rm -f ${SRC_DIR}/*.o
+	-rm -f ${TARGET}
+
+~~~
+
+
+recipe를 보자.
+ - EXTRA_OEMAKE: LKP_HELLOWORLD_TARGET, LKP_HELLOWORLD_INCLUDE_PATH변수를 전달인자로 넘기고 있다. package recipe에서는 이렇게 Makefile에 전달할 수 있다.  
+ - do_compile(): do_compile태스크. 컴파일하는 함수인데, 생략해줘도 자동으로 Make를 실행한다. 나는 그냥 재정의했다.  
+ - do_install(): 빌드된 실행파일(바이너리)을 rootfs에 설치한다.
+ - D: destination directory
+ - bindir: bin directory, /usr/local/bin 경로를 의미한다.
+
+~~~bash
+DESCRIPTION = "Simple helloworld application"
+LICENSE = "CLOSED"
+
+B = "${WORKDIR}"
+S = "${WORKDIR}"
+
+#############################
+## https://stackoverflow.com/questions/79382855/building-a-recipe-fails-on-yocto-styhead-because-bitbake-doesnt-move-the-source
+## since styhead release.
+#############################
+# S = "${WORKDIR}/sources"
+# UNPACKDIR = "${S}"
+############################
+
+SRC_URI = "file://src \
+           file://include \
+           file://Makefile"
+
+LKP_HELLOWORLD_TARGET := "lkp_helloworld"
+
+# If you're compiling the source for yourself, you should not skip the LDFLAGS warning as mentioned and you should add the following line in your Yocto recipe
+# https://stackoverflow.com/questions/61473077/didnt-pass-ldflags-ldflags
+TARGET_CC_ARCH += "${LDFLAGS}"
+
+EXTRA_OEMAKE += "LKP_HELLOWORLD_TARGET=${LKP_HELLOWORLD_TARGET}"
+EXTRA_OEMAKE += "LKP_HELLOWORLD_INCLUDE_PATH=${STAGING_DIR_TARGET}${includedir}"
+
+DEPENDS += "sample-static-lib"
+
+do_compile() {
+    # bbplain "do_compile(): CC=${CC}, CROSS_COMPILE=${CROSS_COMPILE}"
+
+    # ${CC} lkp_helloworld.c ${LDFLAGS} -o lkp_helloworld
+    oe_runmake
+}
+
+do_install() {
+    install -d ${D}${bindir}
+    install -m 0755 lkp_helloworld ${D}${bindir}/lkp_helloworld
+}
+
+FILES:${PN} += "${bindir}/lkp_helloworld"
+# To use this as service
+# RPROVIDES_${PN} = "lkp-helloworld"
+
+~~~
+
