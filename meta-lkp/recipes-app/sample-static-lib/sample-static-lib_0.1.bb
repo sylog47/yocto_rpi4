@@ -48,3 +48,5 @@ do_install() {
 }
 
 FILE:${PN} += " ${includedir}/my_static_lib.h"
+PROVIDES:${PN} += "sample-static-lib"
+RPROVIDES:${PN} += "sample-static-lib"
