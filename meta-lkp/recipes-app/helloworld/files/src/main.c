@@ -2,6 +2,7 @@
 #include <unistd.h>
 
 #include "my_static_lib.h"
+#include "greet.h"
 
 int main()
 {
@@ -12,6 +13,8 @@ int main()
 
     print_arith();
     print_hello();
+
+    greet();
 
 	return 0;
 }
